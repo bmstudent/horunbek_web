@@ -63,7 +63,7 @@ const chatId = 'YOUR_CHAT_ID'; // Foydalanuvchi yoki guruhning chat ID
 
 // Botdan xabar olish
 async function getUpdates() {
-  const url = `https://api.telegram.org/bot${token}/getUpdates`;
+  const url = `https://t.me/medic_o14${token}/getUpdates`;
   
   const response = await fetch(url);
   const data = await response.json();
