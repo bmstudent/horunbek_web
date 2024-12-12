@@ -55,3 +55,46 @@ Add to Cart
 </div>
 </article>`;
 }
+
+const fetch = require('node-fetch');
+
+const token = 'YOUR_BOT_TOKEN'; // Bot tokenni shu yerga qo'ying
+const chatId = 'YOUR_CHAT_ID'; // Foydalanuvchi yoki guruhning chat ID
+
+// Botdan xabar olish
+async function getUpdates() {
+  const url = `https://api.telegram.org/bot${token}/getUpdates`;
+  
+  const response = await fetch(url);
+  const data = await response.json();
+  
+  if (data.ok) {
+    const updates = data.result;
+    updates.forEach(update => {
+      const message = update.message.text;
+      const user = update.message.from.first_name;
+      console.log(`${user} sent: ${message}`);
+    });
+  } else {
+    console.log('Xatolik yuz berdi!');
+  }
+}
+
+// Xabar yuborish
+async function sendMessage(message) {
+  const url = `https://api.telegram.org/bot${token}/sendMessage`;
+  const response = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: message,
+    }),
+    headers: { 'Content-Type': 'application/json' },
+  });
+  const data = await response.json();
+  console.log(data);
+}
+
+// Foydalanuvchidan xabar olish va yuborish
+getUpdates();
+sendMessage('Xabar yuborildi!');
