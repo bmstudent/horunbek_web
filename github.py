@@ -1,26 +1,36 @@
-# Bot API tokeni
-API_TOKEN = 'YOUR_API_TOKEN'
+import logging
+from aiogram import Bot, Dispatcher, executor, types
 
-# Sizga habar yuborish uchun botga xabar yuborilganda trigger qilinadigan funksiya
-def notify(update, context):
-    user_message = update.message.text  # Xabar matnini oling
-    user = update.message.from_user.username  # Foydalanuvchi nomini oling
-    print(f"Xabar yuborildi: {user} - {user_message}")
+# Telegram bot tokenini shu yerga joylashtiring
+API_TOKEN = 'YOUR_BOT_API_TOKEN'
 
-    # Sizga xabar yuborish
-    context.bot.send_message(chat_id="YOUR_CHAT_ID", text=f"Yangi xabar: {user} - {user_message}")
+# Loglar uchun sozlama
+def logging_setup():
+    logging.basicConfig(level=logging.INFO, 
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# Asosiy funksiya
-def main():
-    updater = Updater(API_TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+# Bot va dispatcher yaratish
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
 
-    # Xabar yuborilganida trigger qilinadigan handler
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, notify))
+# Admin ID si (o'zingizni Telegram ID raqamingizni kiriting)
+ADMIN_ID = 'YOUR_TELEGRAM_ID'
 
-    # Botni ishga tushirish
-    updater.start_polling()
-    updater.idle()
+# Foydalanuvchi /start bosganda ishlaydigan funksiya
+@dp.message_handler(commands=['start'])
+async def send_welcome(message: types.Message):
+    # Foydalanuvchini kutib olish xabari
+    await message.reply("Salom! Bu bot orqali siz bilan bog'lanish mumkin!")
 
-if name == 'main':
-    main()
+    # Adminni xabardor qilish
+    admin_message = f"Yangi foydalanuvchi ulandi: {message.from_user.full_name} (ID: {message.from_user.id})"
+    await bot.send_message(chat_id=ADMIN_ID, text=admin_message)
+
+# Xabarni jo'natish uchun universal funksiya
+async def notify_admin(event_text):
+    await bot.send_message(chat_id=ADMIN_ID, text=event_text)
+
+# Botni ishga tushirish
+if __name__ == '__main__':
+    logging_setup()
+    executor.start_polling(dp, skip_updates=True)
